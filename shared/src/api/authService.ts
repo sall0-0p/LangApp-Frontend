@@ -1,0 +1,22 @@
+import apiClient from './apiClient';
+import {AuthResponse, User} from "../types";
+
+export const authService = {
+    register(name: string, email: string, password: string): Promise<AuthResponse> {
+        const payload = { name, email, password };
+        return apiClient.post<AuthResponse>('/auth/register', payload).then(res => res.data);
+    },
+
+    login(usernameOrEmail: string, password: string): Promise<AuthResponse> {
+        const payload = { usernameOrEmail, password };
+        return apiClient.post<AuthResponse>('/auth/login', payload).then(res => res.data);
+    },
+
+    logout(): Promise<void> {
+        return apiClient.post<void>('/auth/logout').then(res => res.data);
+    },
+
+    getMe(): Promise<User> {
+        return apiClient.get<User>('/auth/me').then(res => res.data);
+    },
+}
