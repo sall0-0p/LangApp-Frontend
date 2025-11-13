@@ -2,8 +2,8 @@ import apiClient from './apiClient';
 import {AuthResponse, User} from "../types";
 
 export const authService = {
-    register(name: string, email: string, password: string): Promise<AuthResponse> {
-        const payload = { name, email, password };
+    register(username: string, email: string, password: string): Promise<AuthResponse> {
+        const payload = { username, email, password };
         return apiClient.post<AuthResponse>('/auth/register', payload).then(res => res.data);
     },
 

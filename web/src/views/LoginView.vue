@@ -63,8 +63,6 @@
         </p>
       </div>
 
-      <!-- Login Form -->
-      <!-- We use @submit.prevent to call our handleLogin method -->
       <form @submit.prevent="handleLogin">
 
         <AppInput
@@ -99,7 +97,7 @@
           </a>
         </div>
         <div class="text-center text-sm text-gray-500 mt-8 pt-4 border-t border-gray-200">
-          New learner? <a href="#" class="font-medium text-red-600 hover:underline">Start your adventure!</a>
+          New learner? <router-link :to="{ name: 'Register' }" class="font-medium text-red-600 hover:underline">Start your adventure!</router-link>
         </div>
       </form>
     </AppCard>
