@@ -3,6 +3,7 @@ import { useAuthStore } from '@myapp/shared/store/useAuthStore.js';
 import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from "@/views/RegisterView.vue";
+import AppLayout from "@/components/AppLayout.vue";
 
 const TITLE_PREFIX = 'LangApp';
 
@@ -11,12 +12,20 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            name: 'Home',
-            component: HomeView,
+            component: AppLayout,
             meta: {
-                title: 'Home',
                 requiresAuth: true
-            }
+            },
+            children: [
+                {
+                    path: '',
+                    name: 'Home',
+                    component: HomeView,
+                    meta: {
+                        title: 'Home'
+                    }
+                },
+            ]
         },
         {
             path: '/login',
