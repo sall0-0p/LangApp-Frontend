@@ -20,7 +20,7 @@
       // A local computed property to safely get the name
       userName() {
         // 'this.user' might be null briefly, so we check
-        return this.user ? this.user.name : 'Learner';
+        return this.user ? this.user.username : 'Learner';
       }
     },
 

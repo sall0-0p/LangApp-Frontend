@@ -35,7 +35,7 @@ const router = createRouter({
                 title: 'Register',
                 requiresGuest: true
             }
-        }
+        },
     ]
 });
 
