@@ -33,7 +33,7 @@
 </template>
 
 <script>
-  import {useAuthStore} from "@myapp/shared/store/index.js";
+  import {useAuthStore} from "@myapp/shared/store/index.ts";
   import SidebarNavItem from "./SidebarNavItem.vue";
   import { mapActions } from 'pinia';
 

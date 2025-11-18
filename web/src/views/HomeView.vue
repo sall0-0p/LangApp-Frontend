@@ -1,11 +1,5 @@
 <template>
-  <HomeStickyHeader
-      v-if="showStickyHeader && course"
-      :course="course"
-      :progressPercent="progressPercent"
-  />
-
-  <CoursePathHeader title="Learn" v-if="!showStickyHeader" />
+  <CoursePathHeader title="Learn" />
 
   <div class="p-4 md:pt-0 max-w-lg mx-auto pb-20">
 
@@ -21,7 +15,6 @@
     <template v-else-if="course && user">
 
       <CourseProgressCard
-          ref="progressCardRef"
           :title="course.title"
           :emoji="course.emoji"
           :level="course.level" :progressPercent="progressPercent"
@@ -57,10 +50,9 @@ import { onMounted, computed, ref, onUnmounted } from 'vue';
 import { useAuthStore } from '@myapp/shared/store/useAuthStore.js';
 import { useCourseStore } from '@myapp/shared/store/useCourseStore';
 
-import CoursePathHeader from '@/components/CoursePathHeader.vue';
-import HomeStickyHeader from "@/components/HomeStickyHeader.vue";
-import CourseProgressCard from '@/components/CourseProgressCard.vue';
-import LessonItem from '@/components/LessonItem.vue';
+import CoursePathHeader from '@/components/course/CoursePathHeader.vue';
+import CourseProgressCard from '@/components/course/CourseProgressCard.vue';
+import LessonItem from '@/components/lesson/LessonItem.vue';
 
 const authStore = useAuthStore();
 const courseStore = useCourseStore();
@@ -82,31 +74,6 @@ const activeLesson = computed(() => courseStore.activeLesson(user.value));
 const progressPercent = computed(() => {
   return courseStore.activeCourseProgress(user.value);
 });
-
-// --- Header ---
-// 1. Create a ref to hold the sticky header's visibility state
-const showStickyHeader = ref(false);
-
-// 2. Create a ref to attach to the CourseProgressCard component
-const progressCardRef = ref(null);
-
-// 3. Define the threshold. The new header will appear when the card's
-//    bottom edge is 60px or less from the top of the viewport.
-const STICKY_THRESHOLD_PX = 60;
-
-function handleScroll() {
-  if (progressCardRef.value) {
-    // $el is needed to get the underlying DOM element from a Vue component ref
-    const cardEl = progressCardRef.value.$el;
-    if (cardEl) {
-      // Get the card's position relative to the viewport
-      const cardRect = cardEl.getBoundingClientRect();
-
-      // Show the sticky header if the card's BOTTOM is above the threshold
-      showStickyHeader.value = cardRect.bottom < STICKY_THRESHOLD_PX;
-    }
-  }
-}
 
 // --- Methods ---
 
@@ -135,12 +102,6 @@ onMounted(() => {
   // load whichever course is supposed to be active.
   // The store itself now handles all the logic.
   courseStore.loadActiveCourse();
-  window.addEventListener('scroll', handleScroll);
-});
-
-onUnmounted(() => {
-  // Clean up the listener when the component is destroyed
-  window.removeEventListener('scroll', handleScroll);
 });
 
 </script>

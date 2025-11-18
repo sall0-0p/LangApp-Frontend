@@ -11,6 +11,6 @@
 </template>
 
 <script setup>
-  import AppSidebar from '@/components/AppSidebar.vue';
-  import AppBottomNav from '@/components/AppBottomNav.vue';
+  import AppSidebar from '@/components/nav/AppSidebar.vue';
+  import AppBottomNav from '@/components/nav/AppBottomNav.vue';
 </script>

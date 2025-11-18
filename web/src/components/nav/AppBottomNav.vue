@@ -23,5 +23,5 @@
 </template>
 
 <script setup>
-  import BottomNavItem from '@/components/BottomNavItem.vue';
+  import BottomNavItem from '@/components/nav/BottomNavItem.vue';
 </script>

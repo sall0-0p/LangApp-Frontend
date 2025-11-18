@@ -3,7 +3,8 @@ import { useAuthStore } from '@myapp/shared/store/useAuthStore.js';
 import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
 import RegisterView from "@/views/RegisterView.vue";
-import AppLayout from "@/components/AppLayout.vue";
+import AppLayout from "@/components/app/AppLayout.vue";
+import LessonSessionView from "@/views/LessonSessionView.vue";
 
 const TITLE_PREFIX = 'LangApp';
 
@@ -26,6 +27,15 @@ const router = createRouter({
                     }
                 },
             ]
+        },
+        {
+            path: '/learn/:id',
+            name: "Learn",
+            component: LessonSessionView,
+            meta: {
+                title: 'Learn',
+                requiresAuth: true,
+            }
         },
         {
             path: '/login',

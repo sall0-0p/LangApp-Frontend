@@ -1,8 +1,8 @@
 <script>
   // Import our components
-  import AppCard from '@/components/AppCard.vue';
-  import AppButton from '@/components/AppButton.vue';
-  import AppInput from '@/components/AppInput.vue';
+  import AppCard from '@/components/app/AppCard.vue';
+  import AppButton from '@/components/app/AppButton.vue';
+  import AppInput from '@/components/app/AppInput.vue';
 
   // Import Pinia helpers and the store
   import { mapActions } from 'pinia';
