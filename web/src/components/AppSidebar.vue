@@ -23,7 +23,7 @@
           <span class="ml-3">Profile</span>
         </SidebarNavItem>
 
-        <SidebarNavItem href="#">
+        <SidebarNavItem @click="handleLogout">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
           <span class="ml-3">Log Out</span>
         </SidebarNavItem>
@@ -32,6 +32,26 @@
   </aside>
 </template>
 
-<script setup>
-  import SidebarNavItem from './SidebarNavItem.vue';
+<script>
+  import {useAuthStore} from "@myapp/shared/store/index.js";
+  import SidebarNavItem from "./SidebarNavItem.vue";
+  import { mapActions } from 'pinia';
+
+  export default {
+    components: {SidebarNavItem},
+    methods: {
+      ...mapActions(useAuthStore, ['logout']),
+
+      async handleLogout() {
+        try {
+          await this.logout();
+          // On success, push to the Login page
+          this.$router.push({ name: 'Login' });
+        } catch (err) {
+          console.error('Failed to logout', err);
+          this.$router.push({ name: 'Login' });
+        }
+      }
+    }
+  }
 </script>

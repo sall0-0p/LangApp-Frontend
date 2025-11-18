@@ -8,7 +8,7 @@ export const courseService = {
      * Corresponds to: GET /api/v1/courses
      */
     getAllCourses(): Promise<CourseSummary[]> {
-        return apiClient.get('/v1/courses')
+        return apiClient.get('/courses')
             .then(res => res.data);
     },
 
@@ -17,7 +17,7 @@ export const courseService = {
      * Corresponds to: GET /api/v1/courses/{id}
      */
     getCourseById(identifier: string): Promise<CourseDetails> {
-        return apiClient.get(`/v1/courses/${identifier}`)
+        return apiClient.get(`/courses/${identifier}`)
             .then(res => res.data);
     }
 }

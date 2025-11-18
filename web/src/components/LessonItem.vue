@@ -7,7 +7,7 @@
         <p class="text-2xl font-bold text-white">{{ lesson.title }}</p>
         <p class="text-white opacity-90">{{ lesson.subtitle }}</p>
       </div>
-      <span class="text-5xl opacity-50">#{{ lesson.id }}</span>
+      <span class="text-5xl opacity-50">#{{ lesson.orderIndex }}</span>
     </div>
 
     <div class="mt-4 bg-white text-red-600 font-bold text-center w-full py-3 rounded-lg shadow-md hover:bg-gray-50">

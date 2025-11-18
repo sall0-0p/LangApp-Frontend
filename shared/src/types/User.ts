@@ -6,4 +6,6 @@ export interface User {
     email: string,
     enrolledCourses: CourseSummary[],
     lastLesson: LessonSummary,
+    activeCourseIdentifier: string,
+    completedLessonIds: string[],
 }
