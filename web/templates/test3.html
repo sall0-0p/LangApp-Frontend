@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lesson: The Basics - LanguageLeap</title>
+    <!-- Include Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font family -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+<!-- Main Lesson Card -->
+<div class="bg-white p-6 sm:p-8 rounded-2xl shadow-xl w-full max-w-md">
+
+    <!-- Lesson Header & Progress -->
+    <header class="mb-6">
+        <div class="flex justify-between items-center mb-2">
+            <h1 class="text-xl font-bold text-gray-800">Lesson 3: S-Line</h1>
+            <a href="courses.html" class="text-gray-400 hover:text-red-600" title="Exit Lesson">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Progress Bar -->
+        <div>
+            <p class="text-sm font-medium text-green-600 mb-1">Progress</p>
+            <div class="w-full bg-gray-200 rounded-full h-4 shadow-inner">
+                <!-- The JS will update this width -->
+                <div id="progress-bar" class="bg-green-500 h-4 rounded-full transition-all duration-500" style="width: 60%;"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Question Area -->
+    <div class="mb-8">
+        <p class="text-2xl font-bold text-gray-800 text-center">Which one is 'cat'?</p>
+    </div>
+
+    <!-- Answer Choices Grid -->
+    <div class="grid grid-cols-2 gap-4 mb-8">
+
+        <!-- Choice 1 (Wrong) -->
+        <button class="choice-button border-2 border-gray-200 bg-white rounded-2xl p-4 text-center transition-all duration-200 transform hover:scale-105 hover:border-red-300 cursor-pointer" data-answer="wrong">
+            <span class="text-5xl block mb-2" role="img" aria-label="dog">🐶</span>
+            <span class="text-lg font-bold text-gray-700">Hund</span>
+        </button>
+
+        <!-- Choice 2 (Correct) -->
+        <button class="choice-button border-2 border-gray-200 bg-white rounded-2xl p-4 text-center transition-all duration-200 transform hover:scale-105 hover:border-red-300 cursor-pointer" data-answer="correct">
+            <span class="text-5xl block mb-2" role="img" aria-label="cat">🐱</span>
+            <span class="text-lg font-bold text-gray-700">Katze</span>
+        </button>
+
+        <!-- Choice 3 (Wrong) -->
+        <button class="choice-button border-2 border-gray-200 bg-white rounded-2xl p-4 text-center transition-all duration-200 transform hover:scale-105 hover:border-red-300 cursor-pointer" data-answer="wrong">
+            <span class="text-5xl block mb-2" role="img" aria-label="fish">🐠</span>
+            <span class="text-lg font-bold text-gray-700">Filsh</span>
+        </button>
+
+        <!-- Choice 4 (Wrong) -->
+        <button class="choice-button border-2 border-gray-200 bg-white rounded-2xl p-4 text-center transition-all duration-200 transform hover:scale-105 hover:border-red-300 cursor-pointer" data-answer="wrong">
+            <span class="text-5xl block mb-2" role="img" aria-label="bird">🐦</span>
+            <span class="text-lg font-bold text-gray-700">Vogel</span>
+        </button>
+
+    </div>
+
+    <!-- Action Area (Submit Button) -->
+    <div id="action-area">
+        <button id="submit-btn" class="w-full py-4 rounded-lg font-bold text-white bg-red-600 hover:bg-red-700 transition-all disabled:bg-gray-300 disabled:cursor-not-allowed" disabled>
+            Check
+        </button>
+    </div>
+
+    <!-- Feedback Area (Hidden by default) -->
+    <div id="feedback-area" class="hidden">
+        <div id="feedback-box" class="p-4 rounded-lg">
+            <h2 id="feedback-title" class="text-xl font-bold"></h2>
+            <p id="feedback-message" class="text-sm"></p>
+        </div>
+        <button id="continue-btn" class="w-full py-4 rounded-lg font-bold text-white mt-4 transition-all">
+            Continue
+        </button>
+    </div>
+
+</div>
+
+<script>
+    // --- DOM Elements ---
+    const choiceButtons = document.querySelectorAll('.choice-button');
+    const submitBtn = document.getElementById('submit-btn');
+    const actionArea = document.getElementById('action-area');
+    const feedbackArea = document.getElementById('feedback-area');
+    const feedbackBox = document.getElementById('feedback-box');
+    const feedbackTitle = document.getElementById('feedback-title');
+    const feedbackMessage = document.getElementById('feedback-message');
+    const continueBtn = document.getElementById('continue-btn');
+    const progressBar = document.getElementById('progress-bar');
+
+    // --- State ---
+    let selectedChoice = null;
+    let lessonProgress = 60; // Starting progress for this question
+
+    // --- Tailwind Classes for States ---
+    const baseClass = 'border-2 border-gray-200 bg-white';
+    const hoverClass = 'hover:border-red-300';
+    const selectedClass = 'border-2 border-red-500 bg-red-50 ring-2 ring-red-300';
+    const correctClass = 'border-2 border-green-500 bg-green-50 ring-2 ring-green-300';
+    const wrongClass = 'border-2 border-red-500 bg-red-100 ring-2 ring-red-300';
+
+    // --- Event Listeners ---
+
+    // 1. Listen for clicks on answer choices
+    choiceButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove selected state from all buttons
+            choiceButtons.forEach(btn => {
+                btn.className = `choice-button ${baseClass} ${hoverClass} rounded-2xl p-4 text-center transition-all duration-200 transform hover:scale-105 cursor-pointer`;
+                btn.disabled = false;
+            });
+
+            // Add selected state to the clicked button
+            button.className = `choice-button ${selectedClass} rounded-2xl p-4 text-center transition-all duration-200 transform scale-105 cursor-pointer`;
+
+            // Store the selection and enable submit
+            selectedChoice = button;
+            submitBtn.disabled = false;
+        });
+    });
+
+    // 2. Listen for click on Submit Button
+    submitBtn.addEventListener('click', () => {
+        if (!selectedChoice) return;
+
+        // Disable all choice buttons
+        choiceButtons.forEach(btn => {
+            btn.disabled = true;
+            btn.classList.remove('hover:border-red-300', 'hover:scale-105');
+        });
+
+        const isCorrect = selectedChoice.dataset.answer === 'correct';
+        const correctAnswerEl = document.querySelector('[data-answer="correct"]');
+
+        if (isCorrect) {
+            // --- CORRECT ANSWER ---
+            selectedChoice.className = `choice-button ${correctClass} rounded-2xl p-4 text-center transition-all duration-200 transform scale-105`;
+
+            feedbackBox.className = 'p-4 rounded-lg bg-green-100 text-green-800';
+            feedbackTitle.innerText = 'Excellent!';
+            feedbackMessage.innerText = 'Katze is the word for cat.';
+            continueBtn.className = 'w-full py-4 rounded-lg font-bold text-white mt-4 transition-all bg-green-600 hover:bg-green-700';
+
+            // Update progress
+            lessonProgress = Math.min(100, lessonProgress + 20);
+            progressBar.style.width = lessonProgress + '%';
+
+        } else {
+            // --- WRONG ANSWER ---
+            selectedChoice.className = `choice-button ${wrongClass} rounded-2xl p-4 text-center transition-all duration-200`;
+            correctAnswerEl.className = `choice-button ${correctClass} rounded-2xl p-4 text-center transition-all duration-200 transform scale-105`;
+
+            feedbackBox.className = 'p-4 rounded-lg bg-red-100 text-red-800';
+            feedbackTitle.innerText = 'Not quite.';
+            feedbackMessage.innerText = 'The correct answer is Katze.';
+            continueBtn.className = 'w-full py-4 rounded-lg font-bold text-white mt-4 transition-all bg-red-600 hover:bg-red-700';
+
+            // Don't update progress, or update less
+            // For this demo, we'll still advance
+            lessonProgress = Math.min(100, lessonProgress + 20);
+            progressBar.style.width = lessonProgress + '%';
+        }
+
+        // Hide submit button, show feedback
+        actionArea.classList.add('hidden');
+        feedbackArea.classList.remove('hidden');
+    });
+
+    // 3. Listen for click on Continue Button
+    continueBtn.addEventListener('click', () => {
+        // In a real app, you'd load the next question.
+        // For this demo, we'll just reload the page.
+        location.reload();
+    });
+
+</script>
+</body>
+</html>
