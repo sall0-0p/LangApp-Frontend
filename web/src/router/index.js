@@ -5,6 +5,7 @@ import LoginView from '../views/LoginView.vue';
 import RegisterView from "@/views/RegisterView.vue";
 import AppLayout from "@/components/app/AppLayout.vue";
 import LessonSessionView from "@/views/LessonSessionView.vue";
+import CoursesView from "@/views/CoursesView.vue";
 
 const TITLE_PREFIX = 'LangApp';
 
@@ -24,6 +25,14 @@ const router = createRouter({
                     component: HomeView,
                     meta: {
                         title: 'Home'
+                    }
+                },
+                {
+                    path: '/courses',
+                    name: 'Courses',
+                    component: CoursesView,
+                    meta: {
+                        title: 'Courses'
                     }
                 },
             ]

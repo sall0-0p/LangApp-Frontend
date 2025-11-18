@@ -21,6 +21,7 @@ export interface SectionSummary {
 export interface CourseSummary {
     identifier: string;
     title: string;
+    emoji: string;
     originLanguage: Language;
     targetLanguage: Language;
     isEnrolled: boolean;
@@ -29,9 +30,10 @@ export interface CourseSummary {
 export interface CourseDetails {
     identifier: string;
     title: string;
+    emoji: string;
     originLanguage: Language;
     targetLanguage: Language;
-    enrolled: boolean;
+    isEnrolled: boolean;
 
     sections: SectionSummary[];
 }

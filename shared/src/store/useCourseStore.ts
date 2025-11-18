@@ -47,6 +47,14 @@ export const useCourseStore = defineStore('course', {
     }),
 
     getters: {
+        enrolledCourses: (state): CourseSummary[] => {
+            return state.courses.filter(course => course.isEnrolled);
+        },
+
+        availableCourses: (state): CourseSummary[] => {
+            return state.courses.filter(course => !course.isEnrolled);
+        },
+
         /**
          * Calculates the progress for the current course.
          */
@@ -67,9 +75,10 @@ export const useCourseStore = defineStore('course', {
 
         /**
          * Finds the very next lesson the user should take.
+         * If the user has no history in this course, it returns the first lesson.
          */
         activeLesson: (state) => (user: User | null): LessonSummary | null => {
-            if (!state.currentCourse || !user) {
+            if (!state.currentCourse) {
                 return null;
             }
 
@@ -78,7 +87,9 @@ export const useCourseStore = defineStore('course', {
                 return null;
             }
 
-            const completedIds = user.completedLessonIds || [];
+            // If user is null (not logged in logic), we defaults to start.
+            // But usually, this is called with a valid user.
+            const completedIds = user?.completedLessonIds || [];
 
             const nextLesson = allLessons.find(lesson =>
                 !completedIds.includes(lesson.identifier)
@@ -106,7 +117,8 @@ export const useCourseStore = defineStore('course', {
             this.error = null;
             try {
                 this.currentCourse = await courseService.getCourseById(identifier);
-                this.setActiveCourseIdentifier(identifier);
+                // We don't automatically set activeCourseIdentifier here to allow
+                // peeking at course details without "selecting" it globally yet.
             } catch (err: any) {
                 this.error = err.message || 'Failed to fetch course details';
                 this.currentCourse = null;
@@ -123,6 +135,7 @@ export const useCourseStore = defineStore('course', {
 
             await this.fetchCourses();
             if (this.courses.length > 0) {
+                // Default to the first available course if none selected
                 const firstCourseIdentifier = this.courses[0].identifier;
                 await this.fetchCourseById(firstCourseIdentifier);
             } else {
