@@ -20,6 +20,7 @@ const handleCourseSelect = async (identifier, isEnrolled = false) => {
 
   if (isEnrolled) {
     // CASE A: Already enrolled. Go to Home to see the Learning Path.
+    courseStore.setActiveCourseIdentifier(identifier);
     await router.push({ name: 'Home' });
   } else {
     // CASE B: First enrollment. Jump straight to the first lesson.

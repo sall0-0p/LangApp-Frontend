@@ -130,18 +130,10 @@ export const useCourseStore = defineStore('course', {
         async loadActiveCourse() {
             if (this.activeCourseIdentifier) {
                 await this.fetchCourseById(this.activeCourseIdentifier);
-                return;
+                return this.activeCourseIdentifier;
             }
 
-            await this.fetchCourses();
-            if (this.courses.length > 0) {
-                // Default to the first available course if none selected
-                const firstCourseIdentifier = this.courses[0].identifier;
-                await this.fetchCourseById(firstCourseIdentifier);
-            } else {
-                this.error = "No courses are available.";
-                this.currentCourse = null;
-            }
+            return null;
         },
 
         setActiveCourseIdentifier(identifier: string) {

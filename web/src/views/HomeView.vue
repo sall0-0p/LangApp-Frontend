@@ -46,13 +46,14 @@
 </template>
 
 <script setup>
-import { onMounted, computed, ref, onUnmounted } from 'vue';
+import { onMounted, computed } from 'vue';
 import { useAuthStore } from '@myapp/shared/store/useAuthStore.js';
 import { useCourseStore } from '@myapp/shared/store/useCourseStore';
 
 import CoursePathHeader from '@/components/course/CoursePathHeader.vue';
 import CourseProgressCard from '@/components/course/CourseProgressCard.vue';
 import LessonItem from '@/components/lesson/LessonItem.vue';
+import router from "@/router/index.js";
 
 const authStore = useAuthStore();
 const courseStore = useCourseStore();
@@ -101,7 +102,11 @@ onMounted(() => {
   // When the component mounts, just tell the course store to
   // load whichever course is supposed to be active.
   // The store itself now handles all the logic.
-  courseStore.loadActiveCourse();
+  courseStore.loadActiveCourse().then((result) => {
+    if (!result) {
+      router.push("/courses");
+    }
+  });
 });
 
 </script>
