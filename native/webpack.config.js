@@ -1,10 +1,18 @@
 const webpack = require("@nativescript/webpack");
+const path = require("path");
 
 module.exports = (env) => {
-	webpack.init(env);
+  webpack.init(env);
 
-	// Learn how to customize:
-	// https://docs.nativescript.org/webpack
+  // Resolve the @myapp/shared alias
+  webpack.chainWebpack((config) => {
+    config.resolve.alias.set(
+      "@myapp/shared",
+      path.resolve(__dirname, "../shared/src")
+    );
 
-	return webpack.resolveConfig();
+    config.resolve.alias.set("@", path.resolve(__dirname, "app"));
+  });
+
+  return webpack.resolveConfig();
 };

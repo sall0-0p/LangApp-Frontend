@@ -2,12 +2,13 @@ import { defineStore } from 'pinia';
 import { courseService } from '../api/courseService';
 import type { CourseSummary, CourseDetails, LessonSummary } from '../types/Curriculum';
 import type { User } from '../types';
+import { ApplicationSettings } from '@nativescript/core';
 
 const storage = {
     getItem(key: string): string | null {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            return null;
+            return ApplicationSettings.getString(key, null);
         } else {
             return localStorage.getItem(key);
         }
@@ -15,7 +16,7 @@ const storage = {
     setItem(key: string, value: string) {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            // ... (native logic)
+            ApplicationSettings.setString(key, value);
         } else {
             localStorage.setItem(key, value);
         }
