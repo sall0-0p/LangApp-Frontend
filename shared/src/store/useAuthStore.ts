@@ -8,7 +8,6 @@ interface IApplicationSettings {
     remove(key: string): void;
 }
 
-let ApplicationSettings: IApplicationSettings | undefined;
 const storage = {
     getItem(key: string): string | null {
         // @ts-ignore
