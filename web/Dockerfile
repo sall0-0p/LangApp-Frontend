@@ -6,9 +6,9 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-# 1. Copy workspace configuration
-# We need the root package.json and pnpm-workspace.yaml to establish the monorepo
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# 1. Copy workspace configuration AND root tsconfig
+# We need the root package.json, pnpm-workspace.yaml, and tsconfig.json
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.json ./
 
 # 2. Copy the source code for ALL packages
 # This is crucial: 'web' depends on 'shared', so both must exist relative to root
