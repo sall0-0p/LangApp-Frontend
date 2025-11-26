@@ -78,7 +78,7 @@ export const useAuthStore = defineStore('auth', {
             this.isLoading = true;
             this.authError = null;
             try {
-                const data = await authService.register(name, email, password);
+                await authService.register(name, email, password);
             } catch (err: any) {
                 this.authError = err.response?.data?.message || 'Registration failed';
                 throw err; // Re-throw for the component to handle

@@ -47,7 +47,7 @@ export const useLessonStore = defineStore('lesson', {
             if (!state.tasks.length || state.currentTaskIndex >= state.tasks.length) {
                 return null;
             }
-            return state.tasks[state.currentTaskIndex];
+            return state.tasks[state.currentTaskIndex] || null;
         },
 
         sessionProgress: (state): number => {

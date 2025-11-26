@@ -95,7 +95,7 @@ export const useCourseStore = defineStore('course', {
                 !completedIds.includes(lesson.identifier)
             );
 
-            return nextLesson || allLessons[0];
+            return nextLesson || allLessons[0] || null;
         }
     },
 
