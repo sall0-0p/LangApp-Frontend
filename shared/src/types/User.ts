@@ -1,4 +1,4 @@
-import {CourseSummary, LessonSummary} from "./Curriculum";
+import type { CourseSummary, LessonSummary } from "./Curriculum";
 
 export interface User {
     id: number,
