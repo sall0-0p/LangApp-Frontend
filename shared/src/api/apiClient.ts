@@ -1,5 +1,5 @@
-import axios, {AxiosInstance} from 'axios';
-import {useAuthStore} from "../store/useAuthStore";
+import axios, { type AxiosInstance } from 'axios';
+import { useAuthStore } from "../store/useAuthStore";
 
 const apiClient: AxiosInstance = axios.create({
     baseURL: 'https://langapp.lordbucket.eu/api',

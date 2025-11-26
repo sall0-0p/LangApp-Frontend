@@ -3,8 +3,10 @@
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
     "types": ["vite/client"],
+    "allowJs": true,
+    "erasableSyntaxOnly": false,
 
-    /* 1. Add baseUrl and paths to match vite.config.ts */
+    /* Fix Path Aliases */
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
@@ -15,7 +17,6 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
