@@ -2,12 +2,6 @@ import { defineStore } from 'pinia';
 import { authService } from '../api/authService';
 import type { User } from '../types';
 
-interface IApplicationSettings {
-    setString(key: string, value: string): void;
-    getString(key: string): string | undefined; // getString returns undefined if not found
-    remove(key: string): void;
-}
-
 const storage = {
     getItem(key: string): string | null {
         // @ts-ignore
