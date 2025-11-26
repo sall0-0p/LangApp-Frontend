@@ -13,7 +13,7 @@ const storage = {
     getItem(key: string): string | null {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            // const ApplicationSettings = require('@nativescript/core').ApplicationSettings;
+                // const ApplicationSettings = require('@nativescript/core').ApplicationSettings;
             // return ApplicationSettings.getString(key) || null;
             return 'Hello World!';
         } else {

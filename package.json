@@ -6,9 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "dependencies": {
-    "@nativescript/core": "~8.9.9"
-  },
   "devDependencies": {
     "typescript": "^5.5.3"
   },

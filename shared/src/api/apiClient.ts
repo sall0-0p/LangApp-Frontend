@@ -2,7 +2,7 @@ import axios, {AxiosInstance} from 'axios';
 import {useAuthStore} from "../store/useAuthStore";
 
 const apiClient: AxiosInstance = axios.create({
-    baseURL: 'http://localhost:8080/api',
+    baseURL: 'https://langapp.lordbucket.eu/api',
     headers: {
         'Content-Type': 'application/json',
     }

@@ -1,0 +1,15 @@
+services:
+  frontend:
+    container_name: langapp-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3031:80"
+    restart: unless-stopped
+    networks:
+      - langapp-network
+
+networks:
+  langapp-network:
+    driver: bridge
