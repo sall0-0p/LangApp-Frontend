@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { MultipleChoiceData, WordExpression } from '../../../../shared/src/types/Lesson'; // Adjust import path
+import type { MultipleChoiceData, WordExpression } from '@myapp/shared/types/Lesson';
 
 const props = defineProps<{
   data: MultipleChoiceData;
