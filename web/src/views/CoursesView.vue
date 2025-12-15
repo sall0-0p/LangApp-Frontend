@@ -25,6 +25,7 @@ const handleCourseSelect = async (identifier, isEnrolled = false) => {
   } else {
     // CASE B: First enrollment. Jump straight to the first lesson.
     const nextLesson = courseStore.activeLesson(authStore.user);
+    courseStore.setActiveCourseIdentifier(identifier);
     if (nextLesson) {
       await router.push({ name: 'Learn', params: { id: nextLesson.identifier } });
     }
