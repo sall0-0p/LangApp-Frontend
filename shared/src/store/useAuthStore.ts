@@ -1,7 +1,6 @@
 // shared/src/store/useAuthStore.ts
 import { defineStore } from 'pinia';
 import { authService } from '../api/authService';
-// [FIX] Import CourseStore to sync state
 import { useCourseStore } from './useCourseStore';
 import type { User } from '../types';
 
@@ -9,8 +8,7 @@ const storage = {
     getItem(key: string): string | null {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            // NativeScript logic...
-            return null;
+            return null; // NativeScript implementation would go here
         } else {
             return localStorage.getItem(key);
         }
@@ -19,7 +17,7 @@ const storage = {
     setItem(key: string, value: string) {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            // NativeScript logic...
+            // NativeScript implementation
         } else {
             localStorage.setItem(key, value);
         }
@@ -28,7 +26,7 @@ const storage = {
     removeItem(key: string) {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            // NativeScript logic...
+            // NativeScript implementation
         } else {
             localStorage.removeItem(key);
         }
@@ -56,10 +54,14 @@ export const useAuthStore = defineStore('auth', {
             storage.setItem(TOKEN_STORAGE_KEY, data.token);
             this.authError = null;
 
-            // [FIX] Sync the user's active course to the CourseStore immediately
+            // [FIX] Sync Active Course Logic
+            const courseStore = useCourseStore();
             if (this.user.activeCourseIdentifier) {
-                const courseStore = useCourseStore();
-                courseStore.setActiveCourseIdentifier(this.user.activeCourseIdentifier, false); // false = don't sync back to server
+                // If user has a preference, set it locally (don't sync back to server loop)
+                courseStore.setActiveCourseIdentifier(this.user.activeCourseIdentifier, false);
+            } else {
+                // If user has NO preference (new user), ensure we clear any local defaults
+                courseStore.clearCurrentCourse();
             }
         },
 
@@ -67,7 +69,8 @@ export const useAuthStore = defineStore('auth', {
             this.user = null;
             this.token = null;
             storage.removeItem(TOKEN_STORAGE_KEY);
-            // [FIX] Clear course selection on logout
+
+            // Clear course selection on logout
             const courseStore = useCourseStore();
             courseStore.clearCurrentCourse();
         },
@@ -119,10 +122,12 @@ export const useAuthStore = defineStore('auth', {
                 const user = await authService.getMe();
                 this.user = user;
 
-                // [FIX] Sync the user's active course to the CourseStore on auto-login
+                // [FIX] Sync Active Course Logic on Auto-Login
+                const courseStore = useCourseStore();
                 if (this.user.activeCourseIdentifier) {
-                    const courseStore = useCourseStore();
                     courseStore.setActiveCourseIdentifier(this.user.activeCourseIdentifier, false);
+                } else {
+                    courseStore.clearCurrentCourse();
                 }
 
                 return true;

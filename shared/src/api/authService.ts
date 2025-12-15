@@ -1,3 +1,4 @@
+// shared/src/api/authService.ts
 import apiClient from './apiClient';
 import type { AuthResponse, User } from "../types";
 
@@ -22,5 +23,5 @@ export const authService = {
 
     updateMe(data: Partial<User>): Promise<User> {
         return apiClient.patch<User>('/auth/me', data).then(res => res.data);
-    },
+    }
 }

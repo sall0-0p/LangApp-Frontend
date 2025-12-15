@@ -1,7 +1,6 @@
 // shared/src/store/useCourseStore.ts
 import { defineStore } from 'pinia';
 import { courseService } from '../api/courseService';
-// [FIX] Import authService/store to persist selection
 import { authService } from '../api/authService';
 import { useAuthStore } from './useAuthStore';
 import type { CourseSummary, CourseDetails, LessonSummary } from '../types/Curriculum';
@@ -24,6 +23,14 @@ const storage = {
             localStorage.setItem(key, value);
         }
     },
+    removeItem(key: string) {
+        // @ts-ignore
+        if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
+            // ApplicationSettings.remove(key);
+        } else {
+            localStorage.removeItem(key);
+        }
+    }
 };
 
 const ACTIVE_COURSE_KEY = 'active_course_identifier';
@@ -45,7 +52,12 @@ export const useCourseStore = defineStore('course', {
     state: (): CourseStoreState => ({
         courses: [],
         currentCourse: null,
-        activeCourseIdentifier: storage.getItem(ACTIVE_COURSE_KEY) || null,
+        // [FIX] Sanitize storage to prevent "null" string causing 404s
+        activeCourseIdentifier: (() => {
+            const val = storage.getItem(ACTIVE_COURSE_KEY);
+            if (val === 'null' || val === 'undefined') return null;
+            return val || null;
+        })(),
         isLoading: false,
         error: null,
     }),
@@ -128,18 +140,15 @@ export const useCourseStore = defineStore('course', {
             return null;
         },
 
-        // [FIX] Added syncToServer param to avoid loops when AuthStore calls this
         async setActiveCourseIdentifier(identifier: string, syncToServer = true) {
             this.activeCourseIdentifier = identifier;
             storage.setItem(ACTIVE_COURSE_KEY, identifier);
 
             if (syncToServer) {
                 const authStore = useAuthStore();
-                // 1. Optimistic update of local user object
                 if (authStore.user) {
                     authStore.user.activeCourseIdentifier = identifier;
                 }
-                // 2. Persist to backend
                 try {
                     await authService.updateMe({ activeCourseIdentifier: identifier });
                 } catch (e) {
@@ -151,7 +160,8 @@ export const useCourseStore = defineStore('course', {
         clearCurrentCourse() {
             this.currentCourse = null;
             this.activeCourseIdentifier = null;
-            // storage.removeItem(ACTIVE_COURSE_KEY); // Optional: keep preference or clear it
+            // [FIX] Explicitly remove from storage so it doesn't persist as "null" string
+            storage.removeItem(ACTIVE_COURSE_KEY);
         }
     }
 });
