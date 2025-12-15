@@ -8,7 +8,7 @@ const storage = {
     getItem(key: string): string | null {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            return null; // NativeScript implementation would go here
+            return null; // NativeScript implementation
         } else {
             return localStorage.getItem(key);
         }
@@ -54,14 +54,11 @@ export const useAuthStore = defineStore('auth', {
             storage.setItem(TOKEN_STORAGE_KEY, data.token);
             this.authError = null;
 
-            // [FIX] Sync Active Course Logic
-            const courseStore = useCourseStore();
+            // [FIXED] Only update course store if server has a value.
+            // Do NOT clear it otherwise, as we want to preserve local selection.
             if (this.user.activeCourseIdentifier) {
-                // If user has a preference, set it locally (don't sync back to server loop)
+                const courseStore = useCourseStore();
                 courseStore.setActiveCourseIdentifier(this.user.activeCourseIdentifier, false);
-            } else {
-                // If user has NO preference (new user), ensure we clear any local defaults
-                courseStore.clearCurrentCourse();
             }
         },
 
@@ -122,12 +119,12 @@ export const useAuthStore = defineStore('auth', {
                 const user = await authService.getMe();
                 this.user = user;
 
-                // [FIX] Sync Active Course Logic on Auto-Login
-                const courseStore = useCourseStore();
+                // [FIXED] Only update course store if server has a value.
+                // Do NOT clear it otherwise. This prevents overwriting local state
+                // if the backend field is missing or null.
                 if (this.user.activeCourseIdentifier) {
+                    const courseStore = useCourseStore();
                     courseStore.setActiveCourseIdentifier(this.user.activeCourseIdentifier, false);
-                } else {
-                    courseStore.clearCurrentCourse();
                 }
 
                 return true;

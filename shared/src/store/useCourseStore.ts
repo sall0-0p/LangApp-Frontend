@@ -160,7 +160,6 @@ export const useCourseStore = defineStore('course', {
         clearCurrentCourse() {
             this.currentCourse = null;
             this.activeCourseIdentifier = null;
-            // [FIX] Explicitly remove from storage so it doesn't persist as "null" string
             storage.removeItem(ACTIVE_COURSE_KEY);
         }
     }
