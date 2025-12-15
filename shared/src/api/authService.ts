@@ -19,4 +19,8 @@ export const authService = {
     getMe(): Promise<User> {
         return apiClient.get<User>('/auth/me').then(res => res.data);
     },
+
+    updateMe(data: Partial<User>): Promise<User> {
+        return apiClient.patch<User>('/auth/me', data).then(res => res.data);
+    },
 }

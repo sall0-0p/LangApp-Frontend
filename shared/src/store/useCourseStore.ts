@@ -1,5 +1,9 @@
+// shared/src/store/useCourseStore.ts
 import { defineStore } from 'pinia';
 import { courseService } from '../api/courseService';
+// [FIX] Import authService/store to persist selection
+import { authService } from '../api/authService';
+import { useAuthStore } from './useAuthStore';
 import type { CourseSummary, CourseDetails, LessonSummary } from '../types/Curriculum';
 import type { User } from '../types';
 
@@ -55,9 +59,6 @@ export const useCourseStore = defineStore('course', {
             return state.courses.filter(course => !course.isEnrolled);
         },
 
-        /**
-         * Calculates the progress for the current course.
-         */
         activeCourseProgress: (state) => (user: User | null): number => {
             if (!state.currentCourse || !user) return 0;
 
@@ -73,10 +74,6 @@ export const useCourseStore = defineStore('course', {
             return Math.round((completedLessons.length / allLessons.length) * 100);
         },
 
-        /**
-         * Finds the very next lesson the user should take.
-         * If the user has no history in this course, it returns the first lesson.
-         */
         activeLesson: (state) => (user: User | null): LessonSummary | null => {
             if (!state.currentCourse) {
                 return null;
@@ -87,8 +84,6 @@ export const useCourseStore = defineStore('course', {
                 return null;
             }
 
-            // If user is null (not logged in logic), we defaults to start.
-            // But usually, this is called with a valid user.
             const completedIds = user?.completedLessonIds || [];
 
             const nextLesson = allLessons.find(lesson =>
@@ -117,8 +112,6 @@ export const useCourseStore = defineStore('course', {
             this.error = null;
             try {
                 this.currentCourse = await courseService.getCourseById(identifier);
-                // We don't automatically set activeCourseIdentifier here to allow
-                // peeking at course details without "selecting" it globally yet.
             } catch (err: any) {
                 this.error = err.message || 'Failed to fetch course details';
                 this.currentCourse = null;
@@ -132,17 +125,33 @@ export const useCourseStore = defineStore('course', {
                 await this.fetchCourseById(this.activeCourseIdentifier);
                 return this.activeCourseIdentifier;
             }
-
             return null;
         },
 
-        setActiveCourseIdentifier(identifier: string) {
+        // [FIX] Added syncToServer param to avoid loops when AuthStore calls this
+        async setActiveCourseIdentifier(identifier: string, syncToServer = true) {
             this.activeCourseIdentifier = identifier;
             storage.setItem(ACTIVE_COURSE_KEY, identifier);
+
+            if (syncToServer) {
+                const authStore = useAuthStore();
+                // 1. Optimistic update of local user object
+                if (authStore.user) {
+                    authStore.user.activeCourseIdentifier = identifier;
+                }
+                // 2. Persist to backend
+                try {
+                    await authService.updateMe({ activeCourseIdentifier: identifier });
+                } catch (e) {
+                    console.error("Failed to sync active course to server", e);
+                }
+            }
         },
 
         clearCurrentCourse() {
             this.currentCourse = null;
+            this.activeCourseIdentifier = null;
+            // storage.removeItem(ACTIVE_COURSE_KEY); // Optional: keep preference or clear it
         }
     }
 });

@@ -1,14 +1,16 @@
+// shared/src/store/useAuthStore.ts
 import { defineStore } from 'pinia';
 import { authService } from '../api/authService';
+// [FIX] Import CourseStore to sync state
+import { useCourseStore } from './useCourseStore';
 import type { User } from '../types';
 
 const storage = {
     getItem(key: string): string | null {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-                // const ApplicationSettings = require('@nativescript/core').ApplicationSettings;
-            // return ApplicationSettings.getString(key) || null;
-            return 'Hello World!';
+            // NativeScript logic...
+            return null;
         } else {
             return localStorage.getItem(key);
         }
@@ -17,9 +19,7 @@ const storage = {
     setItem(key: string, value: string) {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            // const ApplicationSettings = require('@nativescript/core').ApplicationSettings;
-            // ApplicationSettings.setString(key, value);
-            return 'Hello World!';
+            // NativeScript logic...
         } else {
             localStorage.setItem(key, value);
         }
@@ -28,9 +28,7 @@ const storage = {
     removeItem(key: string) {
         // @ts-ignore
         if (typeof global !== 'undefined' && (global.isIOS || global.isAndroid)) {
-            // const ApplicationSettings = require('@nativescript/core').ApplicationSettings;
-            // ApplicationSettings.remove(key);
-            return 'Hello World!';
+            // NativeScript logic...
         } else {
             localStorage.removeItem(key);
         }
@@ -52,19 +50,26 @@ export const useAuthStore = defineStore('auth', {
     },
 
     actions: {
-        // This action commits the user and token to state AND storage
         _setAuth(data: { user: User; token: string }) {
             this.user = data.user;
             this.token = data.token;
             storage.setItem(TOKEN_STORAGE_KEY, data.token);
             this.authError = null;
+
+            // [FIX] Sync the user's active course to the CourseStore immediately
+            if (this.user.activeCourseIdentifier) {
+                const courseStore = useCourseStore();
+                courseStore.setActiveCourseIdentifier(this.user.activeCourseIdentifier, false); // false = don't sync back to server
+            }
         },
 
-        // This action clears all auth state and storage
         _clearAuth() {
             this.user = null;
             this.token = null;
             storage.removeItem(TOKEN_STORAGE_KEY);
+            // [FIX] Clear course selection on logout
+            const courseStore = useCourseStore();
+            courseStore.clearCurrentCourse();
         },
 
         async register(name: string, email: string, password: string) {
@@ -74,7 +79,7 @@ export const useAuthStore = defineStore('auth', {
                 await authService.register(name, email, password);
             } catch (err: any) {
                 this.authError = err.response?.data?.message || 'Registration failed';
-                throw err; // Re-throw for the component to handle
+                throw err;
             } finally {
                 this.isLoading = false;
             }
@@ -88,7 +93,7 @@ export const useAuthStore = defineStore('auth', {
                 this._setAuth(data);
             } catch (err: any) {
                 this.authError = err.response?.data?.message || 'Login failed';
-                throw err; // Re-throw for the component to handle
+                throw err;
             } finally {
                 this.isLoading = false;
             }
@@ -97,8 +102,6 @@ export const useAuthStore = defineStore('auth', {
         async logout() {
             this.isLoading = true;
             try {
-                // We call the logout endpoint, but we don't
-                // wait for it. We log the user out on the client *immediately*.
                 authService.logout().catch(() => { /* ignore errors */ });
             } finally {
                 this._clearAuth();
@@ -106,22 +109,25 @@ export const useAuthStore = defineStore('auth', {
             }
         },
 
-        // This is the critical function for app startup
         async tryAutoLogin(): Promise<boolean> {
             if (!this.token) {
-                return false; // No token, no-go
+                return false;
             }
 
             this.isLoading = true;
             try {
-                // Use the token to fetch the user's profile
                 const user = await authService.getMe();
-                // Token is valid! Set the user.
                 this.user = user;
+
+                // [FIX] Sync the user's active course to the CourseStore on auto-login
+                if (this.user.activeCourseIdentifier) {
+                    const courseStore = useCourseStore();
+                    courseStore.setActiveCourseIdentifier(this.user.activeCourseIdentifier, false);
+                }
+
                 return true;
             } catch (err) {
-                // Token was invalid (e.g., expired)
-                this._clearAuth(); // Clear the bad token
+                this._clearAuth();
                 return false;
             } finally {
                 this.isLoading = false;
