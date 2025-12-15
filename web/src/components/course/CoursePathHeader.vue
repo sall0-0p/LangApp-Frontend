@@ -1,11 +1,11 @@
 <template>
   <nav class="bg-white shadow-md sticky top-0 z-10 md:hidden">
     <div class="max-w-lg mx-auto p-4 flex justify-between items-center">
-      <a href="#" class="text-gray-600 hover:text-red-600 font-medium">
+      <router-link to="/courses" class="text-gray-600 hover:text-red-600 font-medium">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
         </svg>
-      </a>
+      </router-link>
       <h1 class="text-xl font-bold text-gray-800">{{ title }}</h1>
       <a href="#" class="text-gray-600 hover:text-red-600">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
