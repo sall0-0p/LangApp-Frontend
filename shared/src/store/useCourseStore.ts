@@ -52,7 +52,6 @@ export const useCourseStore = defineStore('course', {
     state: (): CourseStoreState => ({
         courses: [],
         currentCourse: null,
-        // [FIX] Sanitize storage to prevent "null" string causing 404s
         activeCourseIdentifier: (() => {
             const val = storage.getItem(ACTIVE_COURSE_KEY);
             if (val === 'null' || val === 'undefined') return null;
@@ -73,35 +72,19 @@ export const useCourseStore = defineStore('course', {
 
         activeCourseProgress: (state) => (user: User | null): number => {
             if (!state.currentCourse || !user) return 0;
-
-            const completedIds = user.completedLessonIds || [];
-            const allLessons = getAllLessons(state.currentCourse);
-
-            if (allLessons.length === 0) return 0;
-
-            const completedLessons = allLessons.filter(lesson =>
-                completedIds.includes(lesson.identifier)
-            );
-
-            return Math.round((completedLessons.length / allLessons.length) * 100);
+            // Use the general calculation logic
+            return calculateCourseProgress(state.currentCourse, user);
         },
 
         activeLesson: (state) => (user: User | null): LessonSummary | null => {
-            if (!state.currentCourse) {
-                return null;
-            }
-
+            if (!state.currentCourse) return null;
             const allLessons = getAllLessons(state.currentCourse);
-            if (allLessons.length === 0) {
-                return null;
-            }
+            if (allLessons.length === 0) return null;
 
             const completedIds = user?.completedLessonIds || [];
-
             const nextLesson = allLessons.find(lesson =>
                 !completedIds.includes(lesson.identifier)
             );
-
             return nextLesson || allLessons[0] || null;
         }
     },
@@ -157,6 +140,23 @@ export const useCourseStore = defineStore('course', {
             }
         },
 
+        // Helper to calculate progress for ANY course (not just active one)
+        // Note: For CourseSummary, we might not have 'sections'.
+        // This assumes we might need to fetch details or backend provides 'totalLessons' count.
+        // For now, if we only have CourseSummary, we can't calc exact progress unless we fetch details
+        // OR if the summary object has a 'progress' field from backend.
+        // Assuming we rely on fetching details or passing a CourseDetails object:
+        getCourseProgress(course: CourseDetails | CourseSummary, user: User | null): number {
+            // @ts-ignore - Assuming course might be full details or we need logic
+            if (!course || !user) return 0;
+            // If it's just a summary without sections, we return 0 (or backend should provide %)
+            // @ts-ignore
+            if (!course.sections) return 0;
+
+            // @ts-ignore
+            return calculateCourseProgress(course, user);
+        },
+
         clearCurrentCourse() {
             this.currentCourse = null;
             this.activeCourseIdentifier = null;
@@ -164,3 +164,19 @@ export const useCourseStore = defineStore('course', {
         }
     }
 });
+
+// Helper function
+function calculateCourseProgress(course: any, user: User | null): number {
+    if (!course || !user || !course.sections) return 0;
+
+    const completedIds = user.completedLessonIds || [];
+    const allLessons = course.sections.flatMap((s: any) => s.lessons);
+
+    if (allLessons.length === 0) return 0;
+
+    const completedCount = allLessons.filter((l: any) =>
+        completedIds.includes(l.identifier)
+    ).length;
+
+    return Math.round((completedCount / allLessons.length) * 100);
+}
