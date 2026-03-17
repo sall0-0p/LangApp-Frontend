@@ -1,4 +1,4 @@
-# Stage 1: Build the application
+# Stage 1: Build
 FROM node:20-alpine AS build-stage
 
 # Install pnpm
@@ -6,28 +6,31 @@ RUN npm install -g pnpm
 
 WORKDIR /app
 
-# Copy lockfile and package.json first to leverage Docker caching
-COPY package.json pnpm-lock.yaml ./
+# 1. Copy workspace configuration AND root tsconfig
+# We need the root package.json, pnpm-workspace.yaml, and tsconfig.json
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.json ./
 
-# Install dependencies
+# 2. Copy the source code for ALL packages
+# This is crucial: 'web' depends on 'shared', so both must exist relative to root
+COPY shared ./shared
+COPY web ./web
+
+# 3. Install dependencies for the ENTIRE workspace
+# --frozen-lockfile ensures we use exact versions from pnpm-lock.yaml
 RUN pnpm install --frozen-lockfile
 
-# Copy the rest of the application code
-COPY . .
+# 4. Build the specific project
+# We run the build command from the root, targeting the web package
+RUN pnpm --filter @myapp/web build
 
-# Build the app (adjust 'build' if your script name is different)
-RUN pnpm build
-
-# Stage 2: Serve the application with Nginx
+# Stage 2: Serve
 FROM nginx:stable-alpine AS production-stage
 
-# Copy the build output from the previous stage
-# Note: Check if your build folder is 'dist' or 'build'
-COPY --from=build-stage /app/dist /usr/share/nginx/html
+# Copy the build output from the correct path in the monorepo
+COPY --from=build-stage /app/web/dist /usr/share/nginx/html
 
-# Copy your custom nginx config to handle SPA routing
+# Copy the nginx config (ensure this file exists in your local web/ directory)
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"]
